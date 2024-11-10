@@ -5,13 +5,14 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-class JwtAuthenticationFilter(private val tokenService: JwtTokenService): OncePerRequestFilter() {
+class JwtAuthenticationFilter(private val tokenService: JwtTokenService) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -20,7 +21,8 @@ class JwtAuthenticationFilter(private val tokenService: JwtTokenService): OncePe
         val token = tryParseToken(request)
         if (tokenService.isValid(token)) {
             val claims = tokenService.getAllClaims(token!!)
-            val auth = UsernamePasswordAuthenticationToken(claims.subject, null, emptyList())
+            val roles = token.getRoles()
+            val auth = UsernamePasswordAuthenticationToken(claims.subject, null, roles)
             auth.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = auth
         }
@@ -40,4 +42,15 @@ class JwtAuthenticationFilter(private val tokenService: JwtTokenService): OncePe
 
     private fun String.extractToken(): String =
         this.substringAfter("Bearer ")
+
+    private fun String.getRoles(): List<SimpleGrantedAuthority> {
+        val claims = tokenService.getAllClaims(this)
+        try {
+            val roles = claims["roles"] as List<String?>
+            return roles.map { SimpleGrantedAuthority("ROLE_$it") }
+        } catch (e: Exception) {
+            println("exception: $e")
+            return emptyList()
+        }
+    }
 }
