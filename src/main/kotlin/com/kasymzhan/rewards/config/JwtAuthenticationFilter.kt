@@ -45,12 +45,15 @@ class JwtAuthenticationFilter(private val tokenService: JwtTokenService) : OnceP
 
     private fun String.getRoles(): List<SimpleGrantedAuthority> {
         val claims = tokenService.getAllClaims(this)
-        try {
-            val roles = claims["roles"] as List<String?>
-            return roles.map { SimpleGrantedAuthority("ROLE_$it") }
+        return try {
+            val roles = claims["roles"] as List<*>
+            roles.mapNotNull {
+                val roleName = (it as? Map<*, *>)?.get("authority") as? String
+                roleName?.let { SimpleGrantedAuthority("$roleName") }
+            }
         } catch (e: Exception) {
             println("exception: $e")
-            return emptyList()
+            emptyList()
         }
     }
 }
