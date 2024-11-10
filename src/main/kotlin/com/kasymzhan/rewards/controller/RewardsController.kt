@@ -1,4 +1,4 @@
-package com.kasymzhan.rewards
+package com.kasymzhan.rewards.controller
 
 import com.kasymzhan.rewards.data.Reward
 import com.kasymzhan.rewards.data.RewardItem
