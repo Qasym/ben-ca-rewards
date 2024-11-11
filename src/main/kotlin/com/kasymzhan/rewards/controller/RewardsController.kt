@@ -52,6 +52,6 @@ class RewardsController(val rewardsRepository: RewardRepository) {
             name = this.name,
             quantity = this.quantity,
             item = this.item.getName(),
-            id = this.id
+            id = this.id.toString()
         )
 }
