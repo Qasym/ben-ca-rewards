@@ -19,6 +19,7 @@ class JwtTokenService(jwtConfig: JwtConfig) {
             getAllClaims(token)
             return true
         } catch (e: Exception) {
+            println("token parse returns false: $e")
             return false
         }
     }
