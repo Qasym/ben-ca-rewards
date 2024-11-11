@@ -51,6 +51,7 @@ class RewardsController(val rewardsRepository: RewardRepository) {
         RewardResponse(
             name = this.name,
             quantity = this.quantity,
-            item = this.item.getName()
+            item = this.item.getName(),
+            id = this.id
         )
 }
