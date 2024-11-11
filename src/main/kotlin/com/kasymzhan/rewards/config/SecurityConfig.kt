@@ -16,7 +16,7 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/rewards").hasRole("USER")
+                it.requestMatchers("/rewards").hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/rewards/add").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
